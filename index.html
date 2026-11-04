@@ -1,10 +1,11 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Manul Kombat</title>
-    <script src="https://yandex.ru"></script>
+    <!-- ПОДКЛЮЧАЕМ СДК ВКОНТАКТЕ (VK BRIDGE) -->
+    <script src="https://unpkg.com"></script>
     <style>
         body, html {
             margin: 0;
@@ -20,15 +21,15 @@
             perspective: 1000px;
         }
 
-        /* Четкий и сочный фон с мемами */
+        /* Высокотехнологичная кибер-сетка на фоне из чистого CSS */
         .meme-background {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://postimg.cc');
-            background-size: cover;
+            background-image: 
+                linear-gradient(rgba(58, 134, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(58, 134, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
             background-position: center;
-            opacity: 0.35; /* Оптимальная яркость мемов */
-            filter: none;  /* Мемы четкие, без размытия */
             z-index: 1;
         }
 
@@ -47,6 +48,7 @@
             box-sizing: border-box;
         }
 
+        /* Стильный баланс */
         .balance-container {
             display: flex;
             align-items: center;
@@ -55,76 +57,87 @@
         }
 
         .coin-icon {
-            font-size: 42px;
-            filter: drop-shadow(0 0 10px #ffbe0b);
+            font-size: 46px;
+            filter: drop-shadow(0 0 15px #ffbe0b);
             animation: coinFloat 3s ease-in-out infinite;
         }
 
         #balance-text {
-            font-size: 38px;
-            font-weight: 800;
+            font-size: 42px;
+            font-weight: 900;
             color: #ffffff;
-            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            text-shadow: 0 0 20px rgba(255, 190, 11, 0.6);
         }
 
         .stats-text {
-            color: #ffffff;
-            font-size: 15px;
+            color: #8a8a9e;
+            font-size: 16px;
             margin-top: -15px;
             font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
+        /* Контейнер кликера */
         .manul-clicker-container {
             position: relative;
-            width: 250px;
-            height: 250px;
+            width: 260px;
+            height: 260px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
+        /* Пульсирующий неоновый круг на фоне */
         .circle-glow {
             position: absolute;
-            width: 280px;
-            height: 280px;
+            width: 290px;
+            height: 290px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(58,134,255,0.3) 0%, rgba(0,0,0,0) 70%);
+            background: radial-gradient(circle, rgba(255, 190, 11, 0.25) 0%, rgba(0,0,0,0) 75%);
             z-index: -1;
+            animation: pulseGlow 2s infinite alternate;
         }
 
-        /* Кот-Манул в костюме */
+        /* Золотой медальон с Манулом из чистого CSS */
         .manul-character {
-            width: 220px;
-            height: 220px;
+            width: 230px;
+            height: 230px;
             border-radius: 50%;
-            background-image: url('https://postimg.cc');
-            background-size: cover;
-            background-position: center;
-            border: 6px solid #3a86ff;
-            box-shadow: 0 0 30px rgba(58,134,255,0.6), inset 0 0 20px rgba(0,0,0,0.6);
+            background: radial-gradient(circle, #ffbe0b 0%, #d97706 100%);
+            border: 8px solid #fff3b0;
+            box-shadow: 
+                0 0 35px rgba(255, 190, 11, 0.6), 
+                inset 0 0 25px rgba(0, 0, 0, 0.4),
+                0 10px 20px rgba(0,0,0,0.5);
             cursor: pointer;
             transition: transform 0.08s ease-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 120px;
             -webkit-user-select: none;
             user-select: none;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
 
+        /* Эффект нажатия */
         .manul-character:active {
-            transform: scale(0.92);
+            transform: scale(0.90);
         }
 
-        /* Вылетающий текст +Х прямо на экране */
+        /* Вылетающий текст +Х */
         .floating-click-text {
             position: absolute;
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 900;
-            color: #ffbe0b;
-            text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px #ff0000;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 8px #ffbe0b;
             pointer-events: none;
             z-index: 10;
             animation: floatUp 0.6s ease-out forwards;
         }
 
+        /* Кнопки прокачки */
         .shop-container {
             width: 100%;
             display: flex;
@@ -135,9 +148,9 @@
 
         .upgrade-btn {
             width: 100%;
-            height: 56px;
+            height: 58px;
             border: none;
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 0 20px;
             display: flex;
             flex-direction: column;
@@ -149,22 +162,27 @@
         }
 
         .upgrade-btn:active { transform: scale(0.98); }
-        .upgrade-btn:disabled { filter: brightness(0.35); cursor: not-allowed; opacity: 0.6; }
+        .upgrade-btn:disabled { filter: brightness(0.35); cursor: not-allowed; opacity: 0.5; }
 
         .btn-blue { background: linear-gradient(135deg, #3a86ff, #2563eb); color: white; box-shadow: 0 4px 15px rgba(58,134,255,0.3); }
         .btn-green { background: linear-gradient(135deg, #06d6a0, #059669); color: white; box-shadow: 0 4px 15px rgba(6,214,160,0.3); }
-        .btn-gold { background: linear-gradient(135deg, #ffbe0b, #d97706); color: #111; font-weight: bold; box-shadow: 0 4px 15px rgba(255,190,11,0.3); }
+        .btn-gold { background: linear-gradient(135deg, #ffbe0b, #d97706); color: #111; font-weight: bold; box-shadow: 0 4px 15px rgba(255,190,11,0.4); }
 
-        .btn-title { font-size: 14px; font-weight: 700; }
-        .btn-price { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+        .btn-title { font-size: 15px; font-weight: 700; }
+        .btn-price { font-size: 12px; opacity: 0.9; margin-top: 2px; }
 
+        /* Анимации */
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-110px) scale(0.7); }
+            0% { opacity: 1; transform: translateY(0) scale(1.1); }
+            100% { opacity: 0; transform: translateY(-120px) scale(0.7); }
         }
         @keyframes coinFloat {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(0.95); opacity: 0.6; }
+            100% { transform: scale(1.05); opacity: 1; }
         }
     </style>
 </head>
@@ -181,7 +199,8 @@
 
         <div class="manul-clicker-container">
             <div class="circle-glow"></div>
-            <div id="manul-button" class="manul-character"></div>
+            <!-- Наш крутой маскот прорисован прямо внутри золотого медальона -->
+            <div id="manul-button" class="manul-character">🐱</div>
         </div>
 
         <div class="shop-container">
@@ -205,6 +224,3 @@
     <script src="game.js"></script>
 </body>
 </html>
-
-
-
