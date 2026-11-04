@@ -1,226 +1,177 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Manul Kombat</title>
-    <!-- ПОДКЛЮЧАЕМ СДК ВКОНТАКТЕ (VK BRIDGE) -->
-    <script src="https://unpkg.com"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #0d0d13;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
+// Игровые переменные
+let coins = 0;          
+let clickPower = 1;     
+let passiveIncome = 0;  
+
+let upgClickCost = 10;
+let upgClickLevel = 1;
+let upgFarmCost = 50;
+let upgFarmLevel = 0;
+
+// Элементы интерфейса
+const balanceText = document.getElementById('balance-text');
+const statsText = document.getElementById('stats-text');
+const manulButton = document.getElementById('manul-button');
+
+const btnClick = document.getElementById('btn-click');
+const btnFarm = document.getElementById('btn-farm');
+const btnAd = document.getElementById('btn-ad');
+
+const lblClickLvl = document.getElementById('lbl-click-lvl');
+const lblClickCost = document.getElementById('lbl-click-cost');
+const lblFarmLvl = document.getElementById('lbl-farm-lvl');
+const lblFarmCost = document.getElementById('lbl-farm-cost');
+
+// Красивое разделение цифр пробелами (например: 1 000 000)
+function formatCoins(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+// Перерисовка текстов и кнопок на экране
+function updateUI() {
+    if (balanceText) balanceText.innerText = formatCoins(coins);
+    if (statsText) statsText.innerText = `Клик: +${clickPower} | Секунда: +${passiveIncome}`;
+    
+    if (lblClickLvl) lblClickLvl.innerText = upgClickLevel;
+    if (lblClickCost) lblClickCost.innerText = formatCoins(upgClickCost);
+    if (lblFarmLvl) lblFarmLvl.innerText = upgFarmLevel;
+    if (lblFarmCost) lblFarmCost.innerText = formatCoins(upgFarmCost);
+    
+    if (btnClick) btnClick.disabled = coins < upgClickCost;
+    if (btnFarm) btnFarm.disabled = coins < upgFarmCost;
+}
+
+// Создание летающего текста +Х над экраном
+function createFloatingText(x, y, text) {
+    const clickText = document.createElement('div');
+    clickText.classList.add('floating-click-text');
+    clickText.innerText = text;
+    clickText.style.left = `${x - 15}px`;
+    clickText.style.top = `${y - 20}px`;
+    document.body.appendChild(clickText);
+    setTimeout(() => { clickText.remove(); }, 600);
+}
+
+// Клик по главному коту
+function processClick(e) {
+    coins += clickPower;
+    
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+    
+    // Поддержка тач-скринов смартфонов
+    if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+    }
+    
+    createFloatingText(clientX, clientY, `+${clickPower}`);
+    updateUI();
+}
+
+if (manulButton) {
+    manulButton.addEventListener('click', processClick);
+}
+
+// Покупка силы клика (увеличивается бесконечно и равна уровню)
+if (btnClick) {
+    btnClick.addEventListener('click', () => {
+        if (coins >= upgClickCost) {
+            coins -= upgClickCost;
+            upgClickLevel += 1;
+            clickPower = upgClickLevel;
+            upgClickCost = Math.floor(upgClickCost * 1.5);
+            saveGame();
+            updateUI();
         }
+    });
+}
 
-        /* Высокотехнологичная кибер-сетка на фоне из чистого CSS */
-        .meme-background {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(58, 134, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(58, 134, 255, 0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            background-position: center;
-            z-index: 1;
+// Покупка майнинг-фермы
+if (btnFarm) {
+    btnFarm.addEventListener('click', () => {
+        if (coins >= upgFarmCost) {
+            coins -= upgFarmCost;
+            passiveIncome += 2;
+            upgFarmLevel += 1;
+            upgFarmCost = Math.floor(upgFarmCost * 1.6);
+            saveGame();
+            updateUI();
         }
+    });
+}
 
-        .game-container {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            max-width: 420px;
-            height: 100%;
-            max-height: 750px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 30px 20px;
-            box-sizing: border-box;
+// Клик по золотой кнопке рекламного бонуса
+if (btnAd) {
+    btnAd.addEventListener('click', () => {
+        showVKRewardVideoAd();
+    });
+}
+
+// Таймер пассивного секундного дохода
+setInterval(() => {
+    coins += passiveIncome;
+    updateUI();
+}, 1000);
+
+// --- НАДЕЖНАЯ СИСТЕМА СОХРАНЕНИЙ ---
+function saveGame() {
+    const gameData = { coins, clickPower, passiveIncome, upgClickCost, upgClickLevel, upgFarmCost, upgFarmLevel };
+    localStorage.setItem('manulKombatVK_save_final', JSON.stringify(gameData));
+    console.log('Прогресс успешно сохранен!');
+}
+
+function loadGame() {
+    const savedData = localStorage.getItem('manulKombatVK_save_final');
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            coins = Number(data.coins) || 0; 
+            clickPower = Number(data.clickPower) || 1; 
+            passiveIncome = Number(data.passiveIncome) || 0;
+            upgClickCost = Number(data.upgClickCost) || 10; 
+            upgClickLevel = Number(data.upgClickLevel) || 1;
+            upgFarmCost = Number(data.upgFarmCost) || 50; 
+            upgFarmLevel = Number(data.upgFarmLevel) || 0;
+        } catch (e) {
+            console.error('Ошибка чтения локальной памяти:', e);
         }
+    }
+    updateUI();
+}
 
-        /* Стильный баланс */
-        .balance-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 10px;
-        }
+// --- ИНТЕГРАЦИЯ VK РЕКЛАМЫ ---
+if (typeof vkBridge !== 'undefined') {
+    vkBridge.send('VKWebAppInit').then(() => {
+        loadGame(); // Сначала загружаем данные из памяти
+        vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'interstitial' }).catch(e => console.log(e));
+    });
 
-        .coin-icon {
-            font-size: 46px;
-            filter: drop-shadow(0 0 15px #ffbe0b);
-            animation: coinFloat 3s ease-in-out infinite;
-        }
+    setInterval(() => {
+        vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'interstitial' }).catch(e => console.log(e));
+    }, 120000);
+} else {
+    setTimeout(loadGame, 100);
+}
 
-        #balance-text {
-            font-size: 42px;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(255, 190, 11, 0.6);
-        }
+function showVKRewardVideoAd() {
+    if (typeof vkBridge !== 'undefined') {
+        vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'reward' })
+        .then(data => {
+            if (data.result) {
+                coins += 500;
+                saveGame();
+                updateUI();
+                alert("Бонус +500 коинов зачислен!");
+            }
+        }).catch(e => alert("Реклама пока загружается"));
+    } else {
+        coins += 500;
+        saveGame();
+        updateUI();
+        createFloatingText(window.innerWidth / 2, window.innerHeight / 2, "+500 Бонус!");
+    }
+}
 
-        .stats-text {
-            color: #8a8a9e;
-            font-size: 16px;
-            margin-top: -15px;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        /* Контейнер кликера */
-        .manul-clicker-container {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Пульсирующий неоновый круг на фоне */
-        .circle-glow {
-            position: absolute;
-            width: 290px;
-            height: 290px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255, 190, 11, 0.25) 0%, rgba(0,0,0,0) 75%);
-            z-index: -1;
-            animation: pulseGlow 2s infinite alternate;
-        }
-
-        /* Золотой медальон с Манулом из чистого CSS */
-        .manul-character {
-            width: 230px;
-            height: 230px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ffbe0b 0%, #d97706 100%);
-            border: 8px solid #fff3b0;
-            box-shadow: 
-                0 0 35px rgba(255, 190, 11, 0.6), 
-                inset 0 0 25px rgba(0, 0, 0, 0.4),
-                0 10px 20px rgba(0,0,0,0.5);
-            cursor: pointer;
-            transition: transform 0.08s ease-out;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 120px;
-            -webkit-user-select: none;
-            user-select: none;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-
-        /* Эффект нажатия */
-        .manul-character:active {
-            transform: scale(0.90);
-        }
-
-        /* Вылетающий текст +Х */
-        .floating-click-text {
-            position: absolute;
-            font-size: 34px;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 8px #ffbe0b;
-            pointer-events: none;
-            z-index: 10;
-            animation: floatUp 0.6s ease-out forwards;
-        }
-
-        /* Кнопки прокачки */
-        .shop-container {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .upgrade-btn {
-            width: 100%;
-            height: 58px;
-            border: none;
-            border-radius: 16px;
-            padding: 0 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-family: inherit;
-            transition: filter 0.2s, transform 0.1s;
-        }
-
-        .upgrade-btn:active { transform: scale(0.98); }
-        .upgrade-btn:disabled { filter: brightness(0.35); cursor: not-allowed; opacity: 0.5; }
-
-        .btn-blue { background: linear-gradient(135deg, #3a86ff, #2563eb); color: white; box-shadow: 0 4px 15px rgba(58,134,255,0.3); }
-        .btn-green { background: linear-gradient(135deg, #06d6a0, #059669); color: white; box-shadow: 0 4px 15px rgba(6,214,160,0.3); }
-        .btn-gold { background: linear-gradient(135deg, #ffbe0b, #d97706); color: #111; font-weight: bold; box-shadow: 0 4px 15px rgba(255,190,11,0.4); }
-
-        .btn-title { font-size: 15px; font-weight: 700; }
-        .btn-price { font-size: 12px; opacity: 0.9; margin-top: 2px; }
-
-        /* Анимации */
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1.1); }
-            100% { opacity: 0; transform: translateY(-120px) scale(0.7); }
-        }
-        @keyframes coinFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        @keyframes pulseGlow {
-            0% { transform: scale(0.95); opacity: 0.6; }
-            100% { transform: scale(1.05); opacity: 1; }
-        }
-    </style>
-</head>
-<body>
-    <div class="meme-background"></div>
-
-    <div class="game-container">
-        <div class="balance-container">
-            <span class="coin-icon">🪙</span>
-            <span id="balance-text">0</span>
-        </div>
-        
-        <div class="stats-text" id="stats-text">Клик: +1 | Секунда: +0</div>
-
-        <div class="manul-clicker-container">
-            <div class="circle-glow"></div>
-            <!-- Наш крутой маскот прорисован прямо внутри золотого медальона -->
-            <div id="manul-button" class="manul-character">🐱</div>
-        </div>
-
-        <div class="shop-container">
-            <button id="btn-click" class="upgrade-btn btn-blue">
-                <span class="btn-title">⚡ Прокачать Клик (Лвл <span id="lbl-click-lvl">1</span>)</span>
-                <span class="btn-price">Цена: <span id="lbl-click-cost">10</span></span>
-            </button>
-            
-            <button id="btn-farm" class="upgrade-btn btn-green">
-                <span class="btn-title">🖥️ Купить Ферму (Лвл <span id="lbl-farm-lvl">0</span>)</span>
-                <span class="btn-price">Цена: <span id="lbl-farm-cost">50</span></span>
-            </button>
-            
-            <button id="btn-ad" class="upgrade-btn btn-gold">
-                <span class="btn-title">🎬 Бонус: +500 коинов</span>
-                <span class="btn-price">Посмотреть видеоролик</span>
-            </button>
-        </div>
-    </div>
-
-    <script src="game.js"></script>
-</body>
-</html>
+// Автосохранение каждые 4 секунды
+setInterval(saveGame, 4000);
