@@ -1,0 +1,210 @@
+<<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Manul Kombat</title>
+    <script src="https://yandex.ru"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0d0d13;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* Четкий и сочный фон с мемами */
+        .meme-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://postimg.cc');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.35; /* Оптимальная яркость мемов */
+            filter: none;  /* Мемы четкие, без размытия */
+            z-index: 1;
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 750px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 20px;
+            box-sizing: border-box;
+        }
+
+        .balance-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .coin-icon {
+            font-size: 42px;
+            filter: drop-shadow(0 0 10px #ffbe0b);
+            animation: coinFloat 3s ease-in-out infinite;
+        }
+
+        #balance-text {
+            font-size: 38px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        .stats-text {
+            color: #ffffff;
+            font-size: 15px;
+            margin-top: -15px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .manul-clicker-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .circle-glow {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(58,134,255,0.3) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+        }
+
+        /* Кот-Манул в костюме */
+        .manul-character {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background-image: url('https://postimg.cc');
+            background-size: cover;
+            background-position: center;
+            border: 6px solid #3a86ff;
+            box-shadow: 0 0 30px rgba(58,134,255,0.6), inset 0 0 20px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: transform 0.08s ease-out;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .manul-character:active {
+            transform: scale(0.92);
+        }
+
+        /* Вылетающий текст +Х прямо на экране */
+        .floating-click-text {
+            position: absolute;
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffbe0b;
+            text-shadow: 0 2px 10px rgba(0,0,0,1), 0 0 5px #ff0000;
+            pointer-events: none;
+            z-index: 10;
+            animation: floatUp 0.6s ease-out forwards;
+        }
+
+        .shop-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            height: 56px;
+            border: none;
+            border-radius: 14px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-family: inherit;
+            transition: filter 0.2s, transform 0.1s;
+        }
+
+        .upgrade-btn:active { transform: scale(0.98); }
+        .upgrade-btn:disabled { filter: brightness(0.35); cursor: not-allowed; opacity: 0.6; }
+
+        .btn-blue { background: linear-gradient(135deg, #3a86ff, #2563eb); color: white; box-shadow: 0 4px 15px rgba(58,134,255,0.3); }
+        .btn-green { background: linear-gradient(135deg, #06d6a0, #059669); color: white; box-shadow: 0 4px 15px rgba(6,214,160,0.3); }
+        .btn-gold { background: linear-gradient(135deg, #ffbe0b, #d97706); color: #111; font-weight: bold; box-shadow: 0 4px 15px rgba(255,190,11,0.3); }
+
+        .btn-title { font-size: 14px; font-weight: 700; }
+        .btn-price { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-110px) scale(0.7); }
+        }
+        @keyframes coinFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="meme-background"></div>
+
+    <div class="game-container">
+        <div class="balance-container">
+            <span class="coin-icon">🪙</span>
+            <span id="balance-text">0</span>
+        </div>
+        
+        <div class="stats-text" id="stats-text">Клик: +1 | Секунда: +0</div>
+
+        <div class="manul-clicker-container">
+            <div class="circle-glow"></div>
+            <div id="manul-button" class="manul-character"></div>
+        </div>
+
+        <div class="shop-container">
+            <button id="btn-click" class="upgrade-btn btn-blue">
+                <span class="btn-title">⚡ Прокачать Клик (Лвл <span id="lbl-click-lvl">1</span>)</span>
+                <span class="btn-price">Цена: <span id="lbl-click-cost">10</span></span>
+            </button>
+            
+            <button id="btn-farm" class="upgrade-btn btn-green">
+                <span class="btn-title">🖥️ Купить Ферму (Лвл <span id="lbl-farm-lvl">0</span>)</span>
+                <span class="btn-price">Цена: <span id="lbl-farm-cost">50</span></span>
+            </button>
+            
+            <button id="btn-ad" class="upgrade-btn btn-gold">
+                <span class="btn-title">🎬 Бонус: +500 коинов</span>
+                <span class="btn-price">Посмотреть видеоролик</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
+
+
+
