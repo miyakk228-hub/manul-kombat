@@ -22,7 +22,7 @@ const lblClickCost = document.getElementById('lbl-click-cost');
 const lblFarmLvl = document.getElementById('lbl-farm-lvl');
 const lblFarmCost = document.getElementById('lbl-farm-cost');
 
-// Красивое разделение цифр пробелами (например: 1 000 000)
+// Красивое разделение цифр пробелами
 function formatCoins(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
@@ -41,7 +41,7 @@ function updateUI() {
     if (btnFarm) btnFarm.disabled = coins < upgFarmCost;
 }
 
-// Создание летающего текста +Х над экраном
+// Создание летящего текста +Х над экраном
 function createFloatingText(x, y, text) {
     const clickText = document.createElement('div');
     clickText.classList.add('floating-click-text');
@@ -59,10 +59,9 @@ function processClick(e) {
     let clientX = e.clientX;
     let clientY = e.clientY;
     
-    // Поддержка тач-скринов смартфонов
     if (e.changedTouches && e.changedTouches.length > 0) {
-        clientX = e.changedTouches[0].clientX;
-        clientY = e.changedTouches[0].clientY;
+        clientX = e.changedTouches.clientX;
+        clientY = e.changedTouches.clientY;
     }
     
     createFloatingText(clientX, clientY, `+${clickPower}`);
@@ -101,7 +100,7 @@ if (btnFarm) {
     });
 }
 
-// Клик по золотой кнопке рекламного бонуса
+// Клик по золотовой кнопке бонуса
 if (btnAd) {
     btnAd.addEventListener('click', () => {
         showVKRewardVideoAd();
